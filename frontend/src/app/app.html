@@ -1,0 +1,16 @@
+<mat-toolbar color="primary" class="top-bar">
+  <span class="brand">{{ title() }}</span>
+  <span class="spacer"></span>
+  <button mat-button type="button" disabled>Spaces</button>
+  <button mat-button type="button" disabled>Bookings</button>
+  <button mat-flat-button color="accent" type="button" disabled>Sign in</button>
+</mat-toolbar>
+
+<main class="shell">
+  <h1>Coworking space booking</h1>
+  <p class="lede">
+    Discover desks and rooms, check availability, and book without double-booking conflicts.
+  </p>
+  <p class="meta">{{ phase() }} — UI scaffolding ready. Feature modules arrive in later phases.</p>
+  <router-outlet />
+</main>

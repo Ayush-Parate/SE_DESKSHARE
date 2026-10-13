@@ -1,0 +1,8 @@
+# Phase 2 profile: run API smoke tests without a live MongoDB instance.
+# Usage: ./mvnw spring-boot:run -Dspring-boot.run.profiles=setup
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration

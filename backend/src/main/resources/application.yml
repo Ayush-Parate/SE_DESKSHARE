@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: deskshare-api
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/deskshare?replicaSet=rs0}
+      auto-index-creation: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:deskshare-super-secret-key-that-must-be-at-least-256-bits-long-for-hmac-sha256}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000} # 1 hour
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    root: INFO
+    com.deskshare: DEBUG

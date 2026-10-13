@@ -1,0 +1,30 @@
+# OS / IDE
+.DS_Store
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+**/application-local.yml
+**/application-secret.yml
+
+# Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cursor / local
+.cursor/

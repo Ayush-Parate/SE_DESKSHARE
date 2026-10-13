@@ -1,0 +1,31 @@
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.shell {
+  max-width: 40rem;
+  margin: 3rem auto;
+  padding: 0 1.25rem;
+}
+
+.lede {
+  color: rgba(0, 0, 0, 0.7);
+  line-height: 1.5;
+}
+
+.meta {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.55);
+}
