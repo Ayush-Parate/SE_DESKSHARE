@@ -30,6 +30,7 @@ Phase 7 (Booking logic / critical path) complete — reservation flow, availabil
 - [x] Phase 6: Enhanced `SpaceService` + `SpaceController` for owner management, pricing/capacity updates, and filter-driven search by city/amenity/price.
 - [x] Phase 6: Added `UpdateSpaceRequest`, archival support, and regression tests for space update/search flows.
 - [x] Phase 7: Booking logic — hourly slot validation, remaining-capacity enforcement, conflict detection, and booking pricing.
+- [x] Add Git remote `origin` (`https://github.com/Ayush-Parate/SE_DESKSHARE.git`), commit initial codebase, and push `main` branch.
 
 ## In progress
 - None.
@@ -49,3 +50,5 @@ Follow-on production hardening or the next feature phase — either add Mongo tr
 | 2026-10-13 | Antigravity | Phase 5 | pom.xml, JWT security components, AuthService, AuthController, docs/08 | `./mvnw test` PASS (28/28 tests); `npm test` PASS (2/2 tests); `npm run build` PASS | Phase 6 Space Management |
 | 2026-10-13 | Copilot CLI | Phase 6 | `backend/src/main/java/com/deskshare/space/*`, `backend/src/test/java/com/deskshare/space/*` | `cd backend && ./mvnw test -q` PASS (29/29 tests) | Phase 7 Booking logic |
 | 2026-10-13 | Copilot CLI | Phase 7 | `backend/src/main/java/com/deskshare/booking/*`, `backend/src/test/java/com/deskshare/booking/*` | `cd backend && ./mvnw test -q` PASS (29/29 tests, 0 failures) | Follow-on hardening or next feature |
+| 2026-10-13 | Antigravity | Push to GitHub | Project files, `.agent-context` | `cd backend && ./mvnw test -q` PASS (29/29 tests) | Follow-on hardening or next feature |
+
