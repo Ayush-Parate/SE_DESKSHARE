@@ -39,8 +39,8 @@ public class SecurityTestConfig {
 
   @Bean
   @Primary
-  JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {
-    return new JwtAuthenticationEntryPoint(new ObjectMapper());
+  JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    return new JwtAuthenticationEntryPoint(objectMapper);
   }
 
   @Bean

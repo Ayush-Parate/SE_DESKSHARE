@@ -73,6 +73,13 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <!-- Local full-stack without Docker: ./mvnw spring-boot:run -Dspring-boot.run.profiles=embedded -->
+    <dependency>
+      <groupId>de.flapdoodle.embed</groupId>
+      <artifactId>de.flapdoodle.embed.mongo.spring3x</artifactId>
+      <version>4.33.0</version>
+    </dependency>
   </dependencies>
 
   <build>

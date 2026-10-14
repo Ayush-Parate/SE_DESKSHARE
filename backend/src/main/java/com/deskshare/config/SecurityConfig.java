@@ -3,11 +3,13 @@ package com.deskshare.config;
 import com.deskshare.auth.security.CustomUserDetailsService;
 import com.deskshare.auth.security.JwtAuthenticationEntryPoint;
 import com.deskshare.auth.security.JwtAuthenticationFilter;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +20,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -44,12 +49,26 @@ public class SecurityConfig {
   }
 
   @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOrigins(List.of("http://localhost:4200"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setExposedHeaders(List.of("Authorization", "Location"));
+    config.setAllowCredentials(true);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+  }
+
+  @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http,
                                           JwtAuthenticationFilter jwtAuthenticationFilter,
                                           JwtAuthenticationEntryPoint authenticationEntryPoint,
                                           DaoAuthenticationProvider authenticationProvider) throws Exception {
     http
         .csrf(AbstractHttpConfigurer::disable)
+        .cors(Customizer.withDefaults())
         .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
@@ -62,7 +81,8 @@ public class SecurityConfig {
             // Users endpoints: registration via auth, Admin manages users
             .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole("ADMIN")
             .requestMatchers("/api/v1/users/**").authenticated()
-            // Spaces write endpoints: OWNER or ADMIN
+            // Spaces write endpoints: OWNER or ADMIN, except reviews which any authenticated user can post
+            .requestMatchers(HttpMethod.POST, "/api/v1/spaces/*/reviews").authenticated()
             .requestMatchers(HttpMethod.POST, "/api/v1/spaces").hasAnyRole("OWNER", "ADMIN")
             // Bookings endpoints: must be authenticated
             .requestMatchers("/api/v1/bookings/**").authenticated()

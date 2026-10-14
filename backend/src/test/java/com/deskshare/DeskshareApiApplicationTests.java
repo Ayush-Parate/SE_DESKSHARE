@@ -25,6 +25,9 @@ class DeskshareApiApplicationTests {
   @MockitoBean
   private AvailabilitySlotRepository availabilitySlotRepository;
 
+  @MockitoBean
+  private com.deskshare.review.ReviewRepository reviewRepository;
+
   @Test
   void contextLoads() {
   }

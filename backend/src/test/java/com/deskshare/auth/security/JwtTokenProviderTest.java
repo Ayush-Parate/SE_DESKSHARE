@@ -44,4 +44,15 @@ class JwtTokenProviderTest {
   void testValidateTokenInvalid() {
     assertThat(jwtTokenProvider.validateToken("invalid.token.here")).isFalse();
   }
+
+  @Test
+  @DisplayName("validateToken returns false for frontend demo session tokens")
+  void testValidateDemoSessionTokens() {
+    boolean customer = jwtTokenProvider.validateToken("demo-token-customer");
+    boolean owner = jwtTokenProvider.validateToken("demo-token-owner");
+    boolean admin = jwtTokenProvider.validateToken("demo-token-admin");
+    assertThat(customer).isFalse();
+    assertThat(owner).isFalse();
+    assertThat(admin).isFalse();
+  }
 }

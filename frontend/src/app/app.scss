@@ -2,26 +2,54 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .brand {
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
+.active-link {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.role-btn {
+  margin-left: 0.5rem;
+  color: white;
+  border-color: rgba(255,255,255,0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+}
+
 .shell {
-  max-width: 40rem;
-  margin: 3rem auto;
+  max-width: 72rem;
+  margin: 2.5rem auto 4rem;
   padding: 0 1.25rem;
+}
+
+.page-intro {
+  margin-bottom: 2rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4vw, 3.3rem);
 }
 
 .lede {
   color: rgba(0, 0, 0, 0.7);
   line-height: 1.5;
+  max-width: 45rem;
 }
 
 .meta {

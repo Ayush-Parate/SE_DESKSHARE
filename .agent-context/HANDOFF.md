@@ -1,40 +1,62 @@
 # Current Handoff
 
 ## Last updated
-2026-10-13
+2026-10-14
 
 ## Current task
-Phase 7 complete (Booking logic / critical path). Follow-on hardening or the next application feature set is next.
+Phase 11 complete (Dashboards). The Angular frontend now has a unified /dashboard
+with role-aware tabs, a SessionService with demo role switcher, and three full
+role-specific dashboard views wired to the backend API.
 
 ## Verified state
-- Git repository initialized on branch `main`.
-- Spring Boot backend has the full domain/security stack plus the space-management and critical booking logic needed for the coworking workflow.
-- Key backend packages include:
-  - `com.deskshare.auth`: `AuthService`, `AuthController`, `RegisterRequest`, `LoginRequest`, `AuthResponse`, `UserPrincipal`, `CustomUserDetailsService`, `JwtTokenProvider`, `JwtAuthenticationFilter`, `JwtAuthenticationEntryPoint`.
-  - `com.deskshare.config`: `SecurityConfig` with stateless JWT session handling and RBAC.
-  - `com.deskshare.common`: `ApiErrorResponse`, `GlobalExceptionHandler`, and custom exceptions.
-  - `com.deskshare.user`: `User`, `Role`, `UserRepository`, `UserService`, `UserController`, `CreateUserRequest`, `UserResponse`.
-  - `com.deskshare.space`: `Space`, `SpaceType`, `Address`, `SpaceRepository`, `SpaceService`, `SpaceController`, `CreateSpaceRequest`, `UpdateSpaceRequest`, `SpaceResponse`.
-  - `com.deskshare.booking`: `Booking`, `BookingStatus`, `AvailabilitySlot`, `BookingRepository`, `AvailabilitySlotRepository`, `BookingService`, `BookingController`, `CreateBookingRequest`, `BookingResponse`.
-- Documentation remains aligned with the implemented phases and current project state.
-- Complete backend test suite passes: 29 tests total, 0 failures, 0 skipped.
-- Remote repository `origin` configured to `https://github.com/Ayush-Parate/SE_DESKSHARE.git` and `main` branch pushed to GitHub.
+- Git on branch `main`.
+- Backend (phases 1–7 & 12 review backend): 44 unit/slice tests pass — `cd backend && ./mvnw test -q`.
+- Frontend (phases 8–11): `npm run build` exits 0, **0 errors, 0 template warnings**.
+  One expected budget warning (990 kB vs 500 kB default — Angular Material; not a code error).
+- Frontend tests: `cd frontend && npm test -- --watch=false` PASS (**106/106 specs pass**).
 
-## Changes made by this agent
-- Configured Git author identity (`Ayush Parate` <Ayush-Parate@users.noreply.github.com>).
-- Verified backend test suite with `cd backend && ./mvnw test -q` (29/29 tests pass).
-- Committed initial codebase (110 files, covering phases 1–7) to branch `main`.
-- Added remote `origin` pointing to `https://github.com/Ayush-Parate/SE_DESKSHARE.git`.
-- Pushed `main` branch upstream to GitHub (`origin/main`).
-- Updated `.agent-context/TASKS.md` and `.agent-context/HANDOFF.md`.
+### New/modified frontend and backend files
+
+| File | Purpose |
+|------|---------|
+| `backend/.../review/*` | Review entity, repository, service, controller (POST /api/v1/spaces/{id}/reviews, GET summary & list) + 9 unit/slice tests |
+| `backend/config/SecurityConfig.java` | CORS config for localhost:4200, review endpoint authorization |
+| `backend/config/DemoDataSeeder.java` | Demo seeder for demo users/spaces |
+| `backend/resources/application-setup.yml` | Setup profile with excludes for headless/offline testing |
+| `core/services/session.service.ts` | SessionService — UserRole, SessionUser, DEMO_SESSIONS, signals, switchRole/clearSession/setSession |
+| `core/services/session.service.spec.ts` | 7 Jasmine specs (test isolation fixed) |
+| `core/services/deskshare-api.service.ts` | Added UserResponse, mockUsers, getUsers, getUserById, getBookingsByOwner, updateSpaceActive; SpaceFilter.ownerId; ownerId param in getSpaces/applyMockFilter |
+| `features/dashboard/dashboard.component.ts` | Unified /dashboard — Mat tabs auto-select by role, tab change updates SessionService |
+| `features/dashboard/dashboard.component.spec.ts` | 7 Jasmine specs |
+| `features/dashboard/customer/customer-dashboard.component.ts` | Upcoming/past bookings, total spend, Book Again |
+| `features/dashboard/customer/customer-dashboard.component.spec.ts` | 6 Jasmine specs |
+| `features/dashboard/owner/owner-dashboard.component.ts` | Spaces with active toggle, per-space revenue, recent bookings |
+| `features/dashboard/owner/owner-dashboard.component.spec.ts` | 5 Jasmine specs |
+| `features/dashboard/admin/admin-dashboard.component.ts` | Stats row, tab switcher, mat-table for users/spaces/bookings |
+| `features/dashboard/admin/admin-dashboard.component.spec.ts` | 9 Jasmine specs |
+| `features/booking-form/booking-form.component.spec.ts` | Fixed `provideRouter` ordering so mock `ActivatedRoute` is not overridden |
+| `features/space-detail/space-detail.component.spec.ts` | Fixed `provideRouter` ordering so mock `ActivatedRoute` is not overridden |
+| `app.ts` | Injects SessionService, exposes roleOptions/switchRole |
+| `app.html` | Dashboard nav link + role switcher matMenu |
+| `app.scss` | role-btn styles |
+| `app.routes.ts` | /dashboard → DashboardComponent |
 
 ## Tests and results
-- `cd backend && ./mvnw test -q` — PASS (29 of 29 tests, 0 failures, 0 errors)
-- `git push -u origin main` — PASS (`main -> main`)
+- `cd frontend && npm test -- --watch=false` — PASS (106/106 specs)
+- `cd frontend && npm run build` — PASS (0 errors, 0 template warnings)
+- `cd backend && ./mvnw test -q` — PASS (44/44 tests)
 
 ## Known issues / blockers
-- Docker and local MongoDB remain unavailable on this machine; full integration tests against a live MongoDB replica set still require Docker or a remote MongoDB connection. The backend verification here is unit/slice based and passes cleanly.
+- Docker / local MongoDB unavailable; live integration requires Docker or remote MongoDB URI.
+- `userId`/`ownerId` are demo placeholders (DEMO_USER_ID / DEMO_SESSIONS) until Phase 12 wires real JWT auth UI.
+- Bundle budget warning: 990 kB initial vs 500 kB default. Not a runtime issue.
 
 ## Exact next step
-If continuing product work: harden booking reservation writes with Mongo transaction/atomic update semantics, or proceed to feature UI integration / next API phase.
+**Phase 12 — Reviews and Enhancements** or **Phase 13 — Testing**
 
+Phase 12 options (pick one or combine):
+1. Space reviews — `POST /api/v1/spaces/:id/reviews` (backend needs review endpoint first), star rating, comment form, review list on SpaceDetailComponent.
+2. Auth UI — login/register forms wired to `/api/v1/auth/login` + `/api/v1/auth/register`; store JWT in localStorage; replace DEMO_USER_ID with real principal.
+3. Route guards — `AuthGuard` redirecting unauthenticated users away from `/dashboard` and `/bookings/new`.
+
+Phase 13: expand the existing Jasmine specs to full coverage + add integration tests against a live MongoDB instance.

@@ -1,16 +1,40 @@
 <mat-toolbar color="primary" class="top-bar">
-  <span class="brand">{{ title() }}</span>
+  <span class="brand" routerLink="/home" aria-label="DeskShare home">{{ title }}</span>
   <span class="spacer"></span>
-  <button mat-button type="button" disabled>Spaces</button>
-  <button mat-button type="button" disabled>Bookings</button>
-  <button mat-flat-button color="accent" type="button" disabled>Sign in</button>
+
+  @for (item of navItems; track item.path) {
+    <a
+      mat-button
+      [routerLink]="item.path"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: item.path === '/home' }"
+    >
+      {{ item.label }}
+    </a>
+  }
+
+  <!-- Role switcher (demo only — replaced by real auth in Phase 12) -->
+  <button
+    mat-stroked-button
+    class="role-btn"
+    [matMenuTriggerFor]="roleMenu"
+    aria-label="Switch demo role"
+  >
+    <mat-icon>manage_accounts</mat-icon>
+    {{ session.role() }}
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+
+  <mat-menu #roleMenu="matMenu">
+    @for (opt of roleOptions; track opt.value) {
+      <button mat-menu-item (click)="switchRole(opt.value)">
+        <mat-icon>{{ opt.value === session.role() ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+        {{ opt.label }}
+      </button>
+    }
+  </mat-menu>
 </mat-toolbar>
 
 <main class="shell">
-  <h1>Coworking space booking</h1>
-  <p class="lede">
-    Discover desks and rooms, check availability, and book without double-booking conflicts.
-  </p>
-  <p class="meta">{{ phase() }} — UI scaffolding ready. Feature modules arrive in later phases.</p>
   <router-outlet />
 </main>

@@ -1,0 +1,14 @@
+# Local full-stack profile: in-process MongoDB (no Docker required).
+# Usage: ./mvnw spring-boot:run -Dspring-boot.run.profiles=embedded
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.14
+
+spring:
+  data:
+    mongodb:
+      # Flapdoodle binds an ephemeral port; Spring Data uses the embedded autoconfig URI.
+      # Keep a non-replica-set database name for local smoke/integration.
+      database: deskshare
