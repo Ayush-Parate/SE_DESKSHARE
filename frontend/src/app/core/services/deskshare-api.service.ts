@@ -260,6 +260,42 @@ export interface AuthResponse {
   role: UserRole;
 }
 
+/** Request payload for POST /api/v1/auth/register */
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
+// ─── Review models ──────────────────────────────────────────────────────────────
+
+/** Mirrors backend CreateReviewRequest. */
+export interface CreateReviewRequest {
+  rating: number;     // 1–5
+  comment: string;    // max 1000 chars
+}
+
+/** Mirrors backend ReviewResponse. */
+export interface ReviewResponse {
+  id: string;
+  spaceId: string;
+  userId: string;
+  authorName: string;
+  rating: number;     // 1–5
+  comment: string;
+  createdAt: string;  // ISO-8601
+}
+
+/** Mirrors backend SpaceReviewsSummary. */
+export interface SpaceReviewsSummary {
+  spaceId: string;
+  averageRating: number;
+  reviewCount: number;
+  reviews: ReviewResponse[];
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
@@ -271,6 +307,12 @@ export class DeskshareApiService {
   /** POST /api/v1/auth/login — returns a signed JWT session. */
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, { email, password });
+  }
+
+  /** POST /api/v1/auth/register — creates account and returns a signed JWT session. */
+  register(firstName: string, lastName: string, email: string, password: string, role: UserRole): Observable<AuthResponse> {
+    const body: RegisterRequest = { firstName, lastName, email, password, role };
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/register`, body);
   }
 
   /** Fetch spaces, optionally filtered. Falls back to mock data when API is unreachable. */
@@ -353,6 +395,18 @@ export class DeskshareApiService {
     return this.http
       .get<BookingResponse[]>(`${this.baseUrl}/bookings`, { params: { ownerId } })
       .pipe(catchError(() => of(mockBookings.filter((b) => b.ownerId === ownerId))));
+  }
+
+  // ─── Review API ───────────────────────────────────────────────────────────────
+
+  /** GET /api/v1/spaces/:spaceId/reviews — public, returns summary + list. */
+  getReviews(spaceId: string): Observable<SpaceReviewsSummary> {
+    return this.http.get<SpaceReviewsSummary>(`${this.baseUrl}/spaces/${spaceId}/reviews`);
+  }
+
+  /** POST /api/v1/spaces/:spaceId/reviews — creates/updates review (auth required). */
+  createReview(spaceId: string, request: CreateReviewRequest): Observable<ReviewResponse> {
+    return this.http.post<ReviewResponse>(`${this.baseUrl}/spaces/${spaceId}/reviews`, request);
   }
 
   // ─── Space management API ─────────────────────────────────────────────────

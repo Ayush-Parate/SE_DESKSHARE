@@ -1,0 +1,80 @@
+@if (isAuthenticated()) {
+  <mat-card class="review-form-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>{{ hasExistingReview() ? 'Update your review' : 'Write a review' }}</mat-card-title>
+      <mat-card-subtitle>Share your experience with this space</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()" class="review-form">
+        <!-- Star rating -->
+        <div class="rating-section">
+          <label class="rating-label">Your rating</label>
+          <div class="stars" (mouseleave)="onStarLeave()">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button
+                type="button"
+                class="star-btn"
+                [class.filled]="star <= getDisplayRating()"
+                [class.hover]="star <= hoverRating && star > selectedRating"
+                (click)="setRating(star)"
+                (mouseenter)="onStarHover(star)"
+                [attr.aria-label]="'Rate ' + star + ' stars'"
+              >
+                <mat-icon>star</mat-icon>
+              </button>
+            }
+          </div>
+          @if (ratingControl?.hasError('required') && ratingControl?.touched) {
+            <mat-error>Please select a rating</mat-error>
+          }
+        </div>
+
+        <!-- Comment -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your review</mat-label>
+          <textarea
+            matInput
+            formControlName="comment"
+            rows="4"
+            placeholder="What did you like or dislike? Be specific..."
+            maxlength="1000"
+          ></textarea>
+          <mat-hint align="end">{{ commentControl?.value?.length || 0 }} / 1000</mat-hint>
+          @if (commentControl?.hasError('required') && commentControl?.touched) {
+            <mat-error>Review comment is required</mat-error>
+          }
+          @if (commentControl?.hasError('maxlength')) {
+            <mat-error>Comment must not exceed 1000 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Submit button -->
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="full-width submit-btn"
+          [disabled]="submitting || reviewForm.invalid"
+        >
+          @if (submitting) {
+            <mat-spinner diameter="20" class="btn-spinner" />
+            <span>Submitting...</span>
+          } @else {
+            <span>{{ hasExistingReview() ? 'Update review' : 'Submit review' }}</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <!-- Not logged in state -->
+  <mat-card class="review-form-card login-prompt" appearance="outlined">
+    <mat-card-content class="login-prompt-content">
+      <mat-icon class="login-icon">rate_review</mat-icon>
+      <h3>Write a review</h3>
+      <p>Sign in to share your experience with this space.</p>
+      <button mat-flat-button color="primary" (click)="loginRequired.emit()">Sign in to review</button>
+    </mat-card-content>
+  </mat-card>
+}

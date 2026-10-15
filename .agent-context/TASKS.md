@@ -1,12 +1,14 @@
 # Task Tracker
 
 ## Current phase
-Phase 11 complete. Ready for Phase 12 (Reviews and Enhancements) or Phase 13 (Testing).
+Phase 13 complete (E2E Testing). All 25 Playwright E2E tests passing, 107 frontend unit tests passing, 44 backend tests passing.
 
 ## Current task
-Phase 11 (Dashboards) complete — the Angular frontend now has a unified /dashboard
-with role-aware tabs, a SessionService with demo role switcher, and three full
-dashboard views (Customer / Owner / Admin) wired to the real backend API.
+Phase 13 complete — E2E Testing implemented and passing:
+- **25 Playwright E2E tests** covering auth flows, space browsing/booking, dashboards, and reviews
+- **107 frontend unit tests** (Jasmine) passing
+- **44 backend tests** (JUnit/Mockito) passing
+- **Frontend build** successful (budget warning expected for Angular Material)
 
 ## Completed
 - [x] Phase 1: Requirements and scope definition.
@@ -33,21 +35,39 @@ dashboard views (Customer / Owner / Admin) wired to the real backend API.
   - [x] Jasmine specs: session.service.spec.ts (7), dashboard.component.spec.ts (7), customer (6), owner (5), admin (9).
   - [x] ng build PASS — 0 errors, 0 template warnings (budget warning expected).
   - [x] Fix mock ActivatedRoute provider ordering in booking-form and space-detail specs (106/106 tests PASS).
+- [x] Phase 12a: Auth UI:
+  - [x] LoginComponent at /login — reactive form, email/password validation, password visibility toggle, demo credentials hint.
+  - [x] RegisterComponent at /register — reactive form, name/email/password/confirm/role, password match validator.
+  - [x] DeskshareApiService.register() added for POST /api/v1/auth/register.
+  - [x] Auth guard applied to /dashboard, /bookings, /bookings/new.
+  - [x] App toolbar: unauthenticated shows Sign in / Get started; authenticated shows user menu with email, role, logout (and demo role switcher for demo tokens).
+  - [x] Lazy-loaded auth routes to keep initial bundle under 1MB.
+  - [x] ng build PASS, 106 frontend tests PASS, 44 backend tests PASS.
+- [x] Phase 12b: Space Reviews UI:
+  - [x] ReviewListComponent — average rating display, star breakdown bars, review cards with author/date/rating/comment.
+  - [x] ReviewFormComponent — star rating picker (1–5), comment textarea (1000 char limit), validation, submit handling.
+  - [x] DeskshareApiService.getReviews() / createReview() for GET/POST /api/v1/spaces/:id/reviews.
+  - [x] Integrated into SpaceDetailComponent with @defer lazy-loading (reviews load on viewport).
+  - [x] Authenticated users see form first (create/update); unauthenticated see login prompt.
+  - [x] hasUserReviewed computed signal hides form if user already reviewed.
+  - [x] SpaceDetailComponent spec updated (107 frontend tests PASS), 44 backend tests PASS.
+- [x] Phase 13: E2E Testing (Playwright):
+  - [x] 25 E2E tests covering: auth redirects, login/register/logout, dashboard per role, role switcher, space browsing/filtering/detail, booking flow, reviews display/form/submit
+  - [x] Fixed localStorage persistence across navigations (removed addInitScript that cleared on every page load)
+  - [x] All 25 tests passing, 107 frontend unit tests passing, 44 backend tests passing
 
 ## In progress
 - None.
 
 ## Blocked
 - Docker / local MongoDB unavailable; live integration requires Docker or a remote MongoDB URI.
-- userId/ownerId are demo placeholders until Phase 12 wires real JWT auth.
 
 ## Next task
-**Phase 12 — Reviews and Enhancements** (or Phase 13 — Testing)
-Options:
-- Space reviews: POST /api/v1/spaces/:id/reviews, star rating, comment
-- Auth UI: login/register forms wired to /api/v1/auth/login + /register
-- Route guards: redirect unauthenticated users from /dashboard, /bookings/new
-- Enhanced booking list: join space names server-side or via a map lookup
+**Deploy / Integration** (optional)
+- Integration tests with real MongoDB (docker-compose up)
+- Load testing for booking conflict endpoints
+- Accessibility audit (WCAG 2.1 AA)
+- Production build verification
 
 ## Handoff log
 | Date | Agent | Task | Files | Tests/results | Next |
@@ -60,4 +80,6 @@ Options:
 | 2026-10-14 | Kiro | Phase 10 | frontend bookings | `npm run build` PASS (0 errors) | Phase 11 |
 | 2026-10-14 | Kiro | Phase 11 | frontend dashboards | `npm run build` PASS (0 errors) | Phase 12/13 |
 | 2026-10-14 | Antigravity | Review backend + frontend suites | review module, CORS, dashboard & session specs | `npm test` PASS (106/106), `npm run build` PASS, `./mvnw test` PASS (44/44) | Push to GitHub |
+| 2026-10-15 | Antigravity | Phase 12a: Auth UI | login/register components, routes, auth guard, toolbar, api service | `npm run build` PASS, `npm test` PASS (106/106), `./mvnw test` PASS (44/44) | Phase 12b/13 |
+| 2026-10-15 | Antigravity | Phase 12b: Space Reviews UI | review-list/form components, api service, space-detail integration, @defer lazy-load | `npm run build` PASS, `npm test` PASS (107/107), `./mvnw test` PASS (44/44) | Phase 13 (Testing) |
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
@@ -9,9 +9,17 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   DeskshareApiService,
   Space,
+  SpaceReviewsSummary,
   centsToDisplay,
   spaceTypeLabel,
 } from '../../core/services/deskshare-api.service';
+import { ReviewListComponent } from '../reviews/review-list/review-list.component';
+import { ReviewFormComponent } from '../reviews/review-form/review-form.component';
+import { SessionService } from '../../core/services/session.service';
+
+// Lazy-loaded components for @defer block (kept in imports for template type-checking)
+import type { ReviewListComponent as ReviewListType } from '../reviews/review-list/review-list.component';
+import type { ReviewFormComponent as ReviewFormType } from '../reviews/review-form/review-form.component';
 
 @Component({
   selector: 'app-space-detail',
@@ -23,6 +31,8 @@ import {
     MatDividerModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    ReviewListComponent,
+    ReviewFormComponent,
   ],
   template: `
     <!-- Back nav -->
@@ -153,6 +163,46 @@ import {
               <mat-icon aria-hidden="true">my_location</mat-icon>
               {{ sp.latitude.toFixed(4) }}, {{ sp.longitude.toFixed(4) }}
             </p>
+          }
+        </section>
+
+        <mat-divider class="section-divider" />
+
+        <!-- Reviews section -->
+        <section class="section reviews-section" aria-labelledby="reviews-heading">
+          <h3 id="reviews-heading">
+            <mat-icon aria-hidden="true">rate_review</mat-icon>
+            Reviews
+          </h3>
+
+          @if (reviewsLoading()) {
+            <div class="reviews-loading" aria-label="Loading reviews">
+              <mat-spinner diameter="32" />
+              <p>Loading reviews…</p>
+            </div>
+          } @else {
+            @defer (on viewport) {
+              <!-- Review form (show first for authenticated users) -->
+              <app-review-form
+                [spaceId]="sp.id"
+                [hasExistingReview]="hasUserReviewed()"
+                (reviewSubmitted)="loadReviews(sp.id)"
+                (loginRequired)="onLoginRequired()"
+              />
+
+              <!-- Review list -->
+              <app-review-list
+                [summary]="reviewsSummary()"
+                [submitting]="reviewFormSubmitting()"
+              />
+            } @placeholder {
+              <div class="reviews-placeholder">Loading reviews…</div>
+            } @loading {
+              <div class="reviews-loading" aria-label="Loading reviews">
+                <mat-spinner diameter="32" />
+                <p>Loading reviews…</p>
+              </div>
+            }
           }
         </section>
 
@@ -327,6 +377,20 @@ import {
         margin: 0.5rem 0 0;
       }
 
+      /* Reviews section */
+      .reviews-section {
+        margin-top: 0.5rem;
+      }
+
+      .reviews-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 2rem;
+        color: rgba(0,0,0,0.55);
+      }
+
       /* Meta footer */
       .meta-footer {
         display: flex;
@@ -356,14 +420,25 @@ export class SpaceDetailComponent implements OnInit {
   protected readonly space = signal<Space | null>(null);
   protected readonly loading = signal(true);
 
+  // Reviews state
+  protected readonly reviewsSummary = signal<SpaceReviewsSummary | null>(null);
+  protected readonly reviewsLoading = signal(false);
+  protected readonly reviewFormSubmitting = signal(false);
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly apiService: DeskshareApiService,
+    private readonly sessionService: SessionService,
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
+    this.loadSpace(id);
+    this.loadReviews(id);
+  }
+
+  private loadSpace(id: string): void {
     this.apiService.getSpaceById(id).subscribe({
       next: (s) => {
         this.space.set(s ?? null);
@@ -374,6 +449,32 @@ export class SpaceDetailComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  loadReviews(spaceId: string): void {
+    this.reviewsLoading.set(true);
+    this.apiService.getReviews(spaceId).subscribe({
+      next: (summary) => {
+        this.reviewsSummary.set(summary);
+        this.reviewsLoading.set(false);
+      },
+      error: () => {
+        this.reviewsSummary.set(null);
+        this.reviewsLoading.set(false);
+      },
+    });
+  }
+
+  /** Check if the current user has already reviewed this space. */
+  protected hasUserReviewed = computed(() => {
+    const summary = this.reviewsSummary();
+    const userId = this.sessionService.userId();
+    if (!summary || !userId) return false;
+    return summary.reviews.some((r) => r.userId === userId);
+  });
+
+  protected onLoginRequired(): void {
+    this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
   }
 
   protected typeLabel(type: Space['type']): string {

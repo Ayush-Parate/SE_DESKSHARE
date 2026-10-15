@@ -3,7 +3,8 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
-import { DeskshareApiService, Space } from '../../core/services/deskshare-api.service';
+import { DeskshareApiService, Space, SpaceReviewsSummary } from '../../core/services/deskshare-api.service';
+import { SessionService } from '../../core/services/session.service';
 import { SpaceDetailComponent } from './space-detail.component';
 
 const mockSpace: Space = {
@@ -24,20 +25,52 @@ const mockSpace: Space = {
   createdAt: '2026-10-01T08:00:00Z',
 };
 
+const mockReviewsSummary: SpaceReviewsSummary = {
+  spaceId: 's-101',
+  averageRating: 4.5,
+  reviewCount: 2,
+  reviews: [
+    {
+      id: 'r-1',
+      spaceId: 's-101',
+      userId: 'user-1',
+      authorName: 'John Doe',
+      rating: 5,
+      comment: 'Great space!',
+      createdAt: '2026-10-10T10:00:00Z',
+    },
+    {
+      id: 'r-2',
+      spaceId: 's-101',
+      userId: 'user-2',
+      authorName: 'Jane Smith',
+      rating: 4,
+      comment: 'Good value for money.',
+      createdAt: '2026-10-09T14:00:00Z',
+    },
+  ],
+};
+
 describe('SpaceDetailComponent', () => {
   let component: SpaceDetailComponent;
   let fixture: ComponentFixture<SpaceDetailComponent>;
   let apiSpy: jasmine.SpyObj<DeskshareApiService>;
+  let sessionSpy: jasmine.SpyObj<SessionService>;
 
   beforeEach(async () => {
-    apiSpy = jasmine.createSpyObj('DeskshareApiService', ['getSpaceById']);
+    apiSpy = jasmine.createSpyObj('DeskshareApiService', ['getSpaceById', 'getReviews']);
     apiSpy.getSpaceById.and.returnValue(of(mockSpace));
+    apiSpy.getReviews.and.returnValue(of(mockReviewsSummary));
+
+    sessionSpy = jasmine.createSpyObj('SessionService', ['userId']);
+    sessionSpy.userId.and.returnValue(null);
 
     await TestBed.configureTestingModule({
       imports: [SpaceDetailComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: DeskshareApiService, useValue: apiSpy },
+        { provide: SessionService, useValue: sessionSpy },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => 's-101' } } },
@@ -58,6 +91,10 @@ describe('SpaceDetailComponent', () => {
 
   it('should call getSpaceById with the route id', () => {
     expect(apiSpy.getSpaceById).toHaveBeenCalledWith('s-101');
+  });
+
+  it('should call getReviews with the route id', () => {
+    expect(apiSpy.getReviews).toHaveBeenCalledWith('s-101');
   });
 
   it('should display the space name', () => {

@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { SessionService, UserRole } from './core/services/session.service';
@@ -17,12 +18,14 @@ import { SessionService, UserRole } from './core/services/session.service';
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
+    MatDividerModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = 'DeskShare';
+  protected readonly session = inject(SessionService);
 
   protected readonly navItems = [
     { label: 'Home', path: '/home' },
@@ -37,9 +40,16 @@ export class App {
     { value: 'ADMIN', label: 'Admin' },
   ];
 
-  protected readonly session = inject(SessionService);
-
   protected switchRole(role: UserRole): void {
     this.session.switchRole(role);
   }
+
+  protected logout(): void {
+    this.session.clearSession();
+  }
+
+  protected readonly isDemoSession = computed(() => {
+    const token = this.session.token();
+    return token?.startsWith('demo-token-') ?? false;
+  });
 }

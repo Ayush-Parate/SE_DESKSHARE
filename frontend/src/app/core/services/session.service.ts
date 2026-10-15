@@ -90,11 +90,10 @@ export class SessionService {
           return;
         }
       } catch {
-        // Corrupted localStorage, ignore and use demo default
+        // Corrupted localStorage, ignore - remain logged out
       }
     }
-    // Default session: Customer demo
-    this.switchRole('CUSTOMER');
+    // No stored session - remain logged out (auth guard will redirect)
   }
 
   /**

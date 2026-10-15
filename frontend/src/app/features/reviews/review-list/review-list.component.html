@@ -1,0 +1,74 @@
+<mat-card class="review-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Reviews</mat-card-title>
+    <mat-card-subtitle>{{ reviewCount() }} review{{ reviewCount() !== 1 ? 's' : '' }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (reviewCount() > 0) {
+      <!-- Average rating display -->
+      <div class="rating-summary">
+        <div class="avg-rating">
+          <span class="avg-number">{{ averageRating() }}</span>
+          <div class="avg-stars">
+            @for (star of stars(averageRating()); track star) {
+              <mat-icon class="filled">star</mat-icon>
+            }
+            @for (star of stars(5 - averageRating()); track star) {
+              <mat-icon>star_border</mat-icon>
+            }
+          </div>
+        </div>
+        <mat-divider vertical class="rating-divider" />
+        <div class="rating-breakdown">
+          @for (level of [5, 4, 3, 2, 1]; track level) {
+            <div class="rating-bar">
+              <span class="level-label">{{ level }}</span>
+              <div class="bar-container">
+                <div class="bar-fill" [style.width.%]="getBarWidth(level)"></div>
+              </div>
+              <span class="level-count">{{ getCountForLevel(level) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Review list -->
+      <div class="reviews-list">
+        @for (review of reviews(); track review.id) {
+          <div class="review-item">
+            <div class="review-header">
+              <div class="reviewer-info">
+                <div class="reviewer-avatar">{{ review.authorName.charAt(0).toUpperCase() }}</div>
+                <div class="reviewer-details">
+                  <span class="reviewer-name">{{ review.authorName }}</span>
+                  <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                </div>
+              </div>
+              <div class="review-rating">
+                @for (star of stars(review.rating); track star) {
+                  <mat-icon class="small filled">star</mat-icon>
+                }
+              </div>
+            </div>
+            <p class="review-comment">{{ review.comment }}</p>
+          </div>
+          @if (!$last) {
+            <mat-divider class="review-divider" />
+          }
+        }
+      </div>
+    } @else {
+      <p class="no-reviews">No reviews yet. Be the first to review!</p>
+    }
+  </mat-card-content>
+
+  @if (submitting()) {
+    <mat-card-actions class="loading-actions">
+      <mat-spinner diameter="24" />
+      <span>Submitting review...</span>
+    </mat-card-actions>
+  }
+</mat-card>
