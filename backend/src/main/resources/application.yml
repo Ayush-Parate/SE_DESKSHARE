@@ -4,6 +4,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/deskshare?replicaSet=rs0}
+      database: ${MONGODB_DATABASE:deskshare}
       auto-index-creation: true
 
 server:

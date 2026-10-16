@@ -5,6 +5,7 @@ spring:
       - de.flapdoodle.embed.mongo.spring.autoconfigure.EmbeddedMongoAutoConfiguration
   data:
     mongodb:
+      database: ${MONGODB_DATABASE:deskshare}
       # In production, indexes are created during migration/startup or managed separately
       auto-index-creation: true
 
