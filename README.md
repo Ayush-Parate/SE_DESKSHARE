@@ -73,18 +73,38 @@ deskshare-SE/
 
 1. Requirements and scope definition — **done**
 2. Technology setup — **done**
-3. MongoDB schema
-4. Spring Boot skeleton (domain modules)
-5. Authentication
-6. Space management
-7. Booking logic (critical)
-8. Angular foundation
-9. Space browsing UI
-10. Booking interface
-11. Dashboards
-12. Reviews and enhancements
-13. Testing
-14. Deployment
+3. MongoDB schema & domain entities — **done**
+4. Spring Boot skeleton (domain modules) — **done**
+5. Authentication & JWT security stack — **done**
+6. Space management & search filters — **done**
+7. Booking logic & conflict prevention — **done**
+8. Angular foundation & brand shell — **done**
+9. Space browsing UI & detail view — **done**
+10. Booking interface & reservation form — **done**
+11. Dashboards (Customer / Owner / Admin) — **done**
+12. Reviews and enhancements (Auth UI & Space Reviews) — **done**
+13. Testing (107 unit tests, 44 backend tests, 25 Playwright E2E tests) — **done**
+14. Deployment (Dockerfiles, Nginx SPA proxy, Compose prod, CI/CD) — **done**
+
+---
+
+## Production Deployment (Phase 14)
+
+Run the entire full-stack application (MongoDB replica set, Spring Boot API, and Nginx Angular SPA) with a single command:
+
+```bash
+# 1. Generate JWT secret
+export JWT_SECRET=$(openssl rand -hex 32)
+
+# 2. Build and launch all production containers
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+- Application UI: `http://localhost`
+- API Health: `http://localhost/api/v1/health`
+- Spring Actuator: `http://localhost/actuator/health`
+
+See [docs/09-deployment-guide.md](file:///Users/ayushparate/Desktop/deskshare-SE/docs/09-deployment-guide.md) for full deployment options, cloud hosting (AWS/DigitalOcean/Render), and backup instructions.
 
 ---
 
@@ -97,18 +117,17 @@ deskshare-SE/
 | `docs/03-roles-permissions.md` | RBAC matrix |
 | `docs/04-architecture-overview.md` | Modular monolith overview |
 | `docs/05-tech-setup.md` | Toolchain and run notes |
+| `docs/06-mongodb-schema.md` | Collections, indexing, transactions |
+| `docs/07-domain-modules-and-api-skeleton.md` | API contracts, DTOs, controllers |
+| `docs/08-authentication-and-security.md` | JWT authentication stack and RBAC |
+| `docs/09-deployment-guide.md` | Production deployment, Docker, CI/CD, ops |
 
 ---
 
 ## Important Notes
 
-- **MongoDB must run as a replica set** (even single-node) for transactions to work
-- The booking system will use atomic slot counters to prevent double-bookings
-- All times are stored in UTC, converted at the edges
-- JWT tokens will be short-lived (1 hour) — auth lands in Phase 5
+- **MongoDB runs as a replica set** (`rs0`) to enable multi-document transactions for booking concurrency
+- The booking system uses atomic slot counters to prevent double-bookings
+- All timestamps are stored in UTC and formatted at the client edge
+- Authentication uses stateless HMAC-SHA256 JWT tokens with role-based route guards
 
----
-
-## Next Steps
-
-Phase 3: MongoDB schema design (collections, indexes, transaction boundaries).

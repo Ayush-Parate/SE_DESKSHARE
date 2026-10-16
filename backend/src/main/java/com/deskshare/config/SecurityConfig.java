@@ -3,7 +3,9 @@ package com.deskshare.config;
 import com.deskshare.auth.security.CustomUserDetailsService;
 import com.deskshare.auth.security.JwtAuthenticationEntryPoint;
 import com.deskshare.auth.security.JwtAuthenticationFilter;
+import java.util.Arrays;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -49,9 +51,14 @@ public class SecurityConfig {
   }
 
   @Bean
-  CorsConfigurationSource corsConfigurationSource() {
+  CorsConfigurationSource corsConfigurationSource(
+      @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost,http://localhost:80}") String allowedOrigins) {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:4200"));
+    List<String> origins = Arrays.stream(allowedOrigins.split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toList();
+    config.setAllowedOrigins(origins);
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setExposedHeaders(List.of("Authorization", "Location"));

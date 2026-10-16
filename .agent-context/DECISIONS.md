@@ -24,6 +24,17 @@ Record confirmed decisions only. Include date, decision, reason, and consequence
 - **Reason:** JJWT is lightweight, modern, and integrates seamlessly with Spring Security without requiring an external OAuth2 server.
 - **Consequences:** Tokens are signed using configured secret key (`app.jwt.secret`) and carry standard subject and claims (`email`, `role`).
 
+### 2026-10-15 — Multi-Stage Containerization & Reverse Proxy Architecture
+- **Decision:** Use multi-stage Docker builds for backend (Maven build -> JRE 21 Alpine runtime with unprivileged `deskshare` user) and frontend (Node 22 build -> Nginx Alpine runtime). Nginx serves static Angular files, handles SPA HTML5 history routing, and reverse proxies `/api/` to the backend.
+- **Reason:** Eliminates CORS issues in production, secures runtime environments by excluding compilation tools and running unprivileged, optimizes delivery via Gzip and immutable asset caching, and enables unified single-command deployment via Docker Compose.
+- **Consequences:** Production deployments run via `docker compose -f docker-compose.prod.yml up --build -d` exposing port 80.
+
+### 2026-10-16 — Render.com Blueprint & Free Cloud Deployment
+- **Decision:** Support zero-cost PaaS cloud hosting via Render.com blueprint (`render.yaml`) and `render-build.sh` build script alongside Docker Compose.
+- **Reason:** Heroku requires credit card verification even for free tier usage. Render.com offers a free web service tier and free static hosting without credit card requirements, coupled with MongoDB Atlas free M0 cluster.
+- **Consequences:** Backend runs as Docker Web Service on Render, frontend runs as Angular Static Site with backend URL injection via `render-build.sh` and SPA history rewrite rules.
+
 ## Pending decisions
 - Exact booking slot granularity (hourly vs custom windows)
 - Image storage approach for space photos (URL-only vs upload)
+

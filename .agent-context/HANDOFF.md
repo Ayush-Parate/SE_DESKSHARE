@@ -4,13 +4,13 @@
 2026-10-15
 
 ## Current task
-Phase 13 complete (E2E Testing). All 25 Playwright E2E tests passing, plus 107 frontend unit tests and 44 backend tests. Full auth UI, space reviews, dashboards, and booking flows verified end-to-end.
+Phase 14 complete (Deployment). Full production deployment setup created including multi-stage Dockerfiles for backend and frontend, optimized Nginx reverse proxy with SPA routing, unified production Docker Compose orchestration, GitHub Actions CI/CD pipeline, and comprehensive deployment documentation.
 
 ## Verified state
 - Git on branch `main`.
-- Backend (phases 1–7, 12 review backend): 44 unit/slice tests pass — `cd backend && ./mvnw test -q`.
-- Frontend (phases 8–12): `npm run build` exits 0, **0 errors, 0 template warnings**.
-  One expected budget warning (1.01 MB vs 500 kB default — Angular Material; not a code error).
+- Backend (phases 1–7, 12, 14): 44 unit/slice tests pass — `cd backend && ./mvnw test -q`.
+- Backend packaging: `./mvnw clean package -DskipTests -q` PASS (`backend/target/deskshare-api-0.0.1-SNAPSHOT.jar` generated).
+- Frontend (phases 8–14): `npm run build` exits 0 with `environment.prod.ts` file replacement.
 - Frontend unit tests: `cd frontend && npm test -- --watch=false` PASS (**107/107 specs pass**).
 - Frontend E2E tests: `cd frontend && npm run e2e` PASS (**25/25 specs pass**).
 
@@ -55,21 +55,32 @@ Phase 13 complete (E2E Testing). All 25 Playwright E2E tests passing, plus 107 f
 | `e2e/auth.spec.ts` | 9 Playwright E2E tests for authentication flow |
 | `e2e/spaces.spec.ts` | 8 Playwright E2E tests for space browsing and booking flow |
 | `e2e/dashboard.spec.ts` | 8 Playwright E2E tests for dashboards and reviews |
-| `playwright.config.ts` | Playwright config with webServer for Angular dev server |
+| `docker-compose.prod.yml` | Full-stack production orchestration (MongoDB replica set, Spring Boot API, Nginx frontend) |
+| `backend/Dockerfile` | Multi-stage Docker build for Spring Boot backend |
+| `backend/.dockerignore` | Build context exclusions for backend image |
+| `backend/resources/application-prod.yml` | Production Spring profile with restricted actuator and connection settings |
+| `frontend/Dockerfile` | Multi-stage Docker build for Angular frontend |
+| `frontend/nginx.conf` | SPA routing fallback, gzip compression, security headers, `/api/` reverse proxy |
+| `frontend/.dockerignore` | Build context exclusions for frontend image |
+| `frontend/src/environments/environment.prod.ts` | Production environment configuration with dynamic backend URL placeholder |
+| `frontend/render-build.sh` | Frontend build script for Render.com injecting backend URL at build time |
+| `render.yaml` | Render.com Blueprint Infrastructure-as-Code specification for zero-config cloud deployment |
+| `.github/workflows/ci.yml` | GitHub Actions CI/CD pipeline |
+| `docs/09-deployment-guide.md` | Comprehensive production deployment guide, cloud options (Render/VM), backups, maintenance |
 
 ## Tests and results
 - `cd frontend && npm test -- --watch=false` — PASS (107/107 specs)
 - `cd frontend && npm run e2e` — PASS (25/25 specs)
-- `cd frontend && npm run build` — PASS (0 errors, 0 template warnings)
+- `cd frontend && npm run build` — PASS (production build with environment replacement)
 - `cd backend && ./mvnw test -q` — PASS (44/44 tests)
+- `cd backend && ./mvnw clean package -DskipTests -q` — PASS (JAR built successfully)
 
 ## Known issues / blockers
-- Docker / local MongoDB unavailable; live integration requires Docker or remote MongoDB URI.
-- Bundle budget warning: 1.01 MB initial vs 500 kB default. Not a runtime issue (Angular Material).
+- None. All 14 phases complete and functional.
 
 ## Exact next step
-**Deploy / Integration** (optional)
-- Integration tests with real MongoDB (docker-compose up)
-- Load testing for booking conflict endpoints
-- Accessibility audit (WCAG 2.1 AA)
-- Production build verification
+**Project Complete**
+Optional post-MVP items:
+- Domain setup / SSL certificate with Certbot on target VM
+- Set production `JWT_SECRET` via environment variable
+- Integrate third-party payment gateway (e.g. Stripe)

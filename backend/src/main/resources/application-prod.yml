@@ -1,0 +1,22 @@
+# Production configuration profile for Spring Boot API
+spring:
+  data:
+    mongodb:
+      # In production, indexes are created during migration/startup or managed separately
+      auto-index-creation: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    root: INFO
+    com.deskshare: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
